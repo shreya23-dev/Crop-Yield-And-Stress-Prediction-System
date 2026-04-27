@@ -1,3 +1,7 @@
+# Short Description
+
+AgroPINN is a deep learning system for district-level Kharif crop yield prediction in Maharashtra, India. It integrates satellite imagery, weather time series, NDVI, and soil data using a multimodal neural network with physics-informed loss functions. The project features a FastAPI backend and a React frontend for interactive yield prediction and visualization.
+
 # 🌾 AgroPINN — Physics-Informed Multimodal Crop Yield Prediction
 
 <div align="center">
@@ -350,3 +354,12 @@ This project is licensed under the MIT License.
 - [Raissi et al. (2019)](https://doi.org/10.1016/j.jcp.2018.10.045) — Physics-Informed Neural Networks
 - [Google Earth Engine](https://earthengine.google.com/) — MODIS satellite data access
 - [Open-Meteo](https://open-meteo.com/) — Free historical weather archive (ERA5-Land)
+
+---
+
+## 👩‍💻 Team
+
+- Shreya Joshi
+- Shreya Ghorpade
+- Fiza Khan
+- Saloni Gaonkar
