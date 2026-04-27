@@ -4,26 +4,6 @@ AgroPINN is a deep learning system for district-level Kharif crop yield predicti
 
 # 🌾 AgroPINN — Physics-Informed Multimodal Crop Yield Prediction
 
-<div align="center">
-
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-FF6F00?logo=tensorflow&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?logo=fastapi&logoColor=white)
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
-![License](https://img.shields.io/badge/License-MIT-green)
-
-**District-level Kharif crop yield prediction for Maharashtra using Physics-Informed Neural Networks (PINNs), satellite imagery, weather time series, and learnable spatial embeddings.**
-
-[Architecture](#architecture) · [Experiments](#experiments) · [Setup](#setup) · [API](#api) · [Results](#results)
-
-</div>
-
----
-
-## 📌 Overview
-
-AgroPINN is an end-to-end deep learning system that predicts district-level crop yields across Maharashtra for five Kharif crops (Rice, Jowar, Bajra, Soyabean, Cotton). It fuses four heterogeneous data sources through a unified multimodal neural architecture, regularised by physics-derived loss terms from agronomic science.
-
 **Key features:**
 - 🛰️ **Satellite CNN-LSTM** — processes monthly 32×32 MODIS image patches (Jun–Nov)
 - 🌦️ **Weather LSTM** — 22 weeks of daily temperature & rainfall sequences
@@ -34,21 +14,6 @@ AgroPINN is an end-to-end deep learning system that predicts district-level crop
 - 🌐 **React + FastAPI UI** — 3-input prediction interface (crop, district, year)
 
 ---
-
-## 🏗️ Architecture
-
-```
-Satellite Images (N, 6, 32, 32, 1)               NDVI Sequence (N, 6, 1)
-  └─ CNN [Conv2D×3 → GAP] per month                └─ Conv1D(32,64) → GAP → Dense(32)
-  └─ LSTM(64) ──────────────────────────────────────────────────────────┐
-                                                                         │
-Weather (N, 22, 3)                                                       │
-  └─ BiLSTM(64) → Dense(64) ───────────────────────────────────────────►├─ Concat(192)
-                                                                         │   Dense(96,48)
-Static: crop_emb(8) + dist_emb(16) + year_norm + soil_pH                │       ↙      ↘
-  └─ Dense(32) ────────────────────────────────────────────────────────►┘  Yield(1)  Stress(1,σ)
-```
-
 **Physics loss suite:**
 
 | Term | Equation | Source |
@@ -204,7 +169,6 @@ npm start
 
 Frontend will be at `http://localhost:3000`
 
-> ⚠️ **Model Required:** The backend needs a trained model in `api/models/`. Run Exp5 training first (see below), or place your `.keras` and `.pkl` files there manually.
 
 ---
 
@@ -244,61 +208,6 @@ python src/utils/generate_results.py
 
 ---
 
-## 🌐 API Reference
-
-### `POST /api/predict`
-
-**Request:**
-```json
-{
-  "crop": "Rice",
-  "district": "Kolhapur",
-  "year": 2024
-}
-```
-
-**Response:**
-```json
-{
-  "status": "success",
-  "prediction": {
-    "predicted_yield": 1.85,
-    "yield_unit": "Tonnes/Hectare",
-    "yield_range": { "low": 1.57, "high": 2.13 }
-  },
-  "stress": {
-    "overall_index": 0.32,
-    "level": "Moderate",
-    "thermal_stress": 0.15,
-    "water_stress": 0.44
-  },
-  "ndvi_profile": {
-    "months": ["June","July","August","September","October","November"],
-    "values": [0.25, 0.42, 0.58, 0.61, 0.45, 0.30],
-    "peak_month": "September",
-    "health_status": "Good"
-  },
-  "weather_summary": { "avg_temperature": 28.5, "total_rainfall": 820.5, ... },
-  "confidence": { "level": "High", "score": 0.82, "factors": [...] },
-  "metadata": { "model_version": "PINN-Multimodal-v2", "processing_time_ms": 340 }
-}
-```
-
-### Supporting Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/health` | Model load status |
-| `GET` | `/api/crops` | List of 5 Kharif crops |
-| `GET` | `/api/districts` | All 34 districts with coordinates + available crops |
-| `GET` | `/api/districts/{district}/crops` | Crops grown in a specific district |
-| `GET` | `/api/results` | All experiment OOF metrics (for Results page) |
-| `GET` | `/embeddings/districts` | t-SNE coordinates of district embeddings |
-
-Interactive API docs at `http://localhost:8000/docs`
-
----
-
 ## 📈 Results
 
 After training, view results at `http://localhost:3000` → **Results** tab, or run:
@@ -321,41 +230,11 @@ python src/utils/generate_results.py
 
 ---
 
-## 📖 Research Paper
-
-A complete research paper draft is included at [`research_paper.md`](./research_paper.md), covering:
-- Abstract, Introduction, Related Work
-- Dataset description (all 4 sources)
-- Model architecture with equations
-- All 5 physics loss derivations (LaTeX-formatted)
-- 6 experiment descriptions + ablation study
-- Results tables (to be filled from actual training)
-- Discussion, limitations, future work, references
-
 ---
 
 ## 🗺️ Districts Covered
 
 All 34 Maharashtra districts: Ahilyanagar, Akola, Amravati, Beed, Bhandara, Buldhana, Chandrapur, Chhatrapati Sambhajinagar, Dharashiv, Dhule, Gadchiroli, Gondia, Hingoli, Jalgaon, Jalna, Kolhapur, Latur, Nagpur, Nanded, Nandurbar, Nashik, Palghar, Parbhani, Pune, Raigad, Ratnagiri, Sangli, Satara, Sindhudurg, Solapur, Thane, Wardha, Washim, Yavatmal.
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License.
-
----
-
-## 🙏 Acknowledgements
-
-- [Monteith (1977)](https://doi.org/10.1098/rstb.1977.0140) — Radiation-use efficiency growth model
-- [FAO-56](https://www.fao.org/3/x0490e/x0490e00.htm) — Crop water requirements (Doorenbos & Kassam 1979)
-- [DSSAT](https://dssat.net/) — Thermal response crop parameters
-- [Raissi et al. (2019)](https://doi.org/10.1016/j.jcp.2018.10.045) — Physics-Informed Neural Networks
-- [Google Earth Engine](https://earthengine.google.com/) — MODIS satellite data access
-- [Open-Meteo](https://open-meteo.com/) — Free historical weather archive (ERA5-Land)
-
----
 
 ## 👩‍💻 Team
 
